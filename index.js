@@ -1,13 +1,23 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const { connectToDB } = require("./db/dbConnection");
+const errorHandler = require('./middlewares/errorHandler');
+const problemsRoute = require('./routes/problems');
+const userRoute = require('./routes/user');
 
 dotenv.config();
 
-const PORT = process.env.PORT || 5000, app = express();
+connectToDB();
 
-app.get('/', (req, res) => {
-  res.send('Welcome!!');
-})
+const PORT = process.env.PORT, app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+app.use('/problems', problemsRoute);
+app.use("/user", userRoute);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running at https://localhost:${PORT}`);
