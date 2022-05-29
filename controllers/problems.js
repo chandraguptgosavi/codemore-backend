@@ -2,7 +2,10 @@ const asyncHandler = require("express-async-handler");
 const axios = require("axios").default;
 const { throwError } = require("../utils/errorHandler");
 const Problem = require("../models/problem");
-const { areTestCasesValid } = require("../utils/problemsController");
+const {
+  areTestCasesValid,
+  getUpdatedTestCases,
+} = require("../utils/problemsController");
 const User = require("../models/user");
 
 const getAllProblems = asyncHandler(async (req, res) => {
@@ -15,32 +18,27 @@ const getAllProblems = asyncHandler(async (req, res) => {
 });
 
 const createProblem = asyncHandler(async (req, res) => {
-  const {
-    title,
-    statement,
-    input,
-    output,
-    sampleInput,
-    sampleOutput,
-    testCases,
-  } = req.body;
+  const { title, statement, input, output, sampleTestCases, testCases } =
+    req.body;
 
   if (
     !title ||
     !statement ||
     !input ||
     !output ||
-    !sampleInput ||
-    !sampleOutput ||
+    !sampleTestCases ||
+    !sampleTestCases.count ||
+    !sampleTestCases.input ||
+    !sampleTestCases.output ||
     !testCases ||
     !testCases.count ||
-    !testCases.stdInput ||
-    !testCases.stdOutput
+    !testCases.input ||
+    !testCases.output
   ) {
     throwError(res, 400, "Fields are missing!");
   }
 
-  if (!areTestCasesValid(testCases)) {
+  if (!areTestCasesValid(sampleTestCases) || !areTestCasesValid(testCases)) {
     throwError(res, 400, "Test case format is invalid!");
   }
 
@@ -49,12 +47,15 @@ const createProblem = asyncHandler(async (req, res) => {
     statement,
     input,
     output,
-    sampleInput,
-    sampleOutput,
+    sampleTestCases: {
+      count: sampleTestCases.count,
+      input: sampleTestCases.input.replaceAll(",\r\n", "\r\n"),
+      output: sampleTestCases.output.replaceAll(",\r\n", "\r\n"),
+    },
     testCases: {
       count: testCases.count,
-      stdInput: testCases.stdInput.replaceAll(",", "\r\n"),
-      stdOutput: testCases.stdOutput.replaceAll(",", "\r\n"),
+      input: testCases.input.replaceAll(",\r\n", "\r\n"),
+      output: testCases.output.replaceAll(",\r\n", "\r\n"),
     },
   });
   res.status(200).json(problem);
@@ -79,34 +80,28 @@ const updateProblem = asyncHandler(async (req, res) => {
     throwError(res, 404, "Problem doesn't exists!");
   }
 
-  if (req.body.testCases && !areTestCasesValid(req.body.testCases)) {
-    throwError(res, 400, "Test case format is invalid!");
+  let updatedProblem;
+
+  if (req.body.testCases) {
+    const testCases = req.body.testCases;
+    if (testCases && !areTestCasesValid(testCases)) {
+      throwError(res, 400, "Test case format is invalid!");
+    }
+
+    updatedProblem = await Problem.findByIdAndUpdate(
+      id,
+      {
+        testCases: getUpdatedTestCases(testCases, problem.testCases),
+      },
+      {
+        new: true,
+      }
+    ).exec();
+  } else {
+    updatedProblem = await Problem.findByIdAndUpdate(id, req.body, {
+      new: true,
+    }).exec();
   }
-
-  const update = {
-    ...req.body,
-    testCases: {
-      count: !req.body.testCases
-        ? problem.testCases.count
-        : problem.testCases.count + req.body.testCases.count,
-      stdInput:
-        req.body.testCases && req.body.testCases.stdInput !== undefined
-          ? `${
-              problem.testCases.stdInput
-            }\r\n${req.body.testCases.stdInput.replaceAll(",", "\r\n")}`
-          : problem.testCases.stdInput,
-      stdOutput:
-        req.body.testCases && req.body.testCases.stdOutput !== undefined
-          ? `${
-              problem.testCases.stdOutput
-            },${req.body.testCases.stdOutput.replaceAll(",", "\r\n")}`
-          : problem.testCases.stdOutput,
-    },
-  };
-
-  const updatedProblem = await Problem.findByIdAndUpdate(id, update, {
-    new: true,
-  }).exec();
   res.status(200).json(updatedProblem);
 });
 

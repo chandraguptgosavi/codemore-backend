@@ -1,20 +1,21 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const { connectToDB } = require("./db/dbConnection");
-const errorHandler = require('./middlewares/errorHandler');
-const problemsRoute = require('./routes/problems');
-const userRoute = require('./routes/user');
+const errorHandler = require("./middlewares/errorHandler");
+const problemsRoute = require("./routes/problems");
+const userRoute = require("./routes/user");
 
 dotenv.config();
 
 connectToDB();
 
-const PORT = process.env.PORT, app = express();
+const PORT = process.env.PORT,
+  app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/problems', problemsRoute);
+app.use("/problems", problemsRoute);
 app.use("/user", userRoute);
 
 app.use(errorHandler);
