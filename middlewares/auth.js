@@ -12,7 +12,7 @@ const auth = asyncHandler(async (req, res, next) => {
     try {
       token = req.headers.authorization.split(" ")[1];
       const decodedToken = verifyToken(token);
-      req.user = User.findById(decodedToken.userID).select("-password").exec();
+      req.user = await User.findById(decodedToken.userID).select("-password").exec();
       next();
     } catch (error) {
       res.status(401);

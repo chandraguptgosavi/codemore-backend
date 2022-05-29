@@ -155,8 +155,8 @@ const submitProblem = asyncHandler(async (req, res) => {
     data: {
       source_code: srcCode,
       language_id: langID,
-      stdin: problem.testCases.stdInput,
-      expected_output: problem.testCases.stdOutput,
+      stdin: problem.testCases.input,
+      expected_output: problem.testCases.output,
       cpu_time_limit: "2.0",
       memory_limit: "262144",
     },

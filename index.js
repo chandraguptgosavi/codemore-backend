@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require('cors');
 const { connectToDB } = require("./db/dbConnection");
 const errorHandler = require("./middlewares/errorHandler");
 const problemsRoute = require("./routes/problems");
@@ -12,6 +13,7 @@ connectToDB();
 const PORT = process.env.PORT,
   app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
