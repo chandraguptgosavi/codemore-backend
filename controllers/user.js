@@ -11,11 +11,16 @@ const signUp = asyncHandler(async (req, res) => {
     throwError(res, 400, "Missing Credentials");
   }
 
-  if (await User.exists({ username: username }).exec()) {
+  const [usernameExists, emailExists] = await Promise.all([
+    User.exists({ username: username }).exec(),
+    User.exists({ email: email }).exec(),
+  ]);
+
+  if (usernameExists) {
     throwError(res, 409, "Username already exists!");
   }
 
-  if (await User.exists({ email: email }).exec()) {
+  if (emailExists) {
     throwError(res, 409, "Email already exists!");
   }
 
