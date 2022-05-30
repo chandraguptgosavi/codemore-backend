@@ -88,15 +88,13 @@ const updateProblem = asyncHandler(async (req, res) => {
       throwError(res, 400, "Test case format is invalid!");
     }
 
-    updatedProblem = await Problem.findByIdAndUpdate(
-      id,
-      {
-        testCases: getUpdatedTestCases(testCases, problem.testCases),
-      },
-      {
-        new: true,
-      }
-    ).exec();
+    const update = {
+      testCases: getUpdatedTestCases(testCases, problem.testCases),
+    };
+
+    updatedProblem = await Problem.findByIdAndUpdate(id, update, {
+      new: true,
+    }).exec();
   } else {
     updatedProblem = await Problem.findByIdAndUpdate(id, req.body, {
       new: true,
