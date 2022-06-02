@@ -11,10 +11,14 @@ const User = require("../models/user");
 const getAllProblems = asyncHandler(async (req, res) => {
   const page = req.query.page ? req.query.page : 1,
     size = req.query.size ? req.query.size : 50;
-  const problems = await Problem.find()
-    .limit(size)
-    .skip((page - 1) * size);
-  res.status(200).json(problems);
+
+  const [totalProblems, problems] = await Promise.all([
+    Problem.estimatedDocumentCount(),
+    Problem.find()
+      .limit(size)
+      .skip((page - 1) * size),
+  ]);
+  res.status(200).json({ totalProblems, problems });
 });
 
 const createProblem = asyncHandler(async (req, res) => {
