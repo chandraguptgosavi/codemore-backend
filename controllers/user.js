@@ -30,13 +30,12 @@ const signUp = asyncHandler(async (req, res) => {
     username: username,
     password: hashedPassword,
     email: email,
-    problems: [],
+    submissions: [],
   });
 
   res.status(200).json({
     username: user.username,
     email: user.email,
-    problems: user.problems,
     token: generateToken(user._id),
   });
 });
@@ -61,12 +60,22 @@ const signIn = asyncHandler(async (req, res) => {
   res.status(200).json({
     username: user.username,
     email: user.email,
-    problems: user.problems,
     token: generateToken(user._id),
   });
+});
+
+const getSubmissions = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+
+  const user = User.findOne({ username: username })
+    .select("submissions")
+    .exec();
+
+  res.status(200).json(user.submissions);
 });
 
 module.exports = {
   signUp,
   signIn,
+  getSubmissions,
 };

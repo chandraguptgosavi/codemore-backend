@@ -114,30 +114,37 @@ const runCode = asyncHandler(async (req, res) => {
     throwError(res, 404, "Fields are missing!");
   }
 
-  const axiosConfig = {
-    method: "post",
-    url: `https://judge0-ce.p.rapidapi.com/submissions/?wait=true`,
-    headers: {
-      "Content-Type": "application/json",
-      "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-      "X-RapidAPI-Key": process.env.RAPID_API_KEY,
-    },
-    data: {
-      source_code: srcCode,
-      language_id: langID,
-      stdin: userInput,
-      cpu_time_limit: "2.0",
-      memory_limit: "262144",
-    },
-  };
-  const submissionRes = (await axios(axiosConfig)).data;
-  res.status(200).json(submissionRes);
+  try {
+    const axiosConfig = {
+      method: "post",
+      url: `https://judge0-ce.p.rapidapi.com/submissions/?wait=true`,
+      headers: {
+        "Content-Type": "application/json",
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+        "X-RapidAPI-Key": process.env.RAPID_API_KEY,
+      },
+      data: {
+        source_code: srcCode,
+        language_id: langID,
+        stdin: userInput,
+        cpu_time_limit: "2.0",
+        memory_limit: "262144",
+      },
+    };
+    const submissionRes = (await axios(axiosConfig)).data;
+    res.status(200).json(submissionRes);
+  } catch (error) {
+    if (error.message === "Request failed with status code 429") {
+      throwError(res, 429, "Rapid-API's request limit exceeded!");
+    }
+    throwError(res, 500, "Internal Server Error");
+  }
 });
 
 const submitProblem = asyncHandler(async (req, res) => {
   const { id } = req.params,
-    { srcCode, langID } = req.body;
-  if (!srcCode || !langID) {
+    { problemTitle, srcCode, langID } = req.body;
+  if (!srcCode || !langID || !problemTitle) {
     throwError(res, 400, "Fields are missing!");
   }
 
@@ -146,31 +153,41 @@ const submitProblem = asyncHandler(async (req, res) => {
     throwError(res, 404, "Problem doesn't exists!");
   }
 
-  const axiosConfig = {
-    method: "post",
-    url: `https://judge0-ce.p.rapidapi.com/submissions/?wait=true`,
-    headers: {
-      "Content-Type": "application/json",
-      "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-      "X-RapidAPI-Key": process.env.RAPID_API_KEY,
-    },
-    data: {
-      source_code: srcCode,
-      language_id: langID,
-      stdin: problem.testCases.input,
-      expected_output: problem.testCases.output,
-      cpu_time_limit: "2.0",
-      memory_limit: "262144",
-    },
-  };
-  const submissionRes = (await axios(axiosConfig)).data;
-  await User.findByIdAndUpdate(req.user._id, {
-    problems: [
-      ...req.user.problems,
-      { problemID: id, status: submissionRes.status },
-    ],
-  });
-  res.status(200).json(submissionRes);
+  try {
+    const axiosConfig = {
+      method: "post",
+      url: `https://judge0-ce.p.rapidapi.com/submissions/?wait=true`,
+      headers: {
+        "Content-Type": "application/json",
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+        "X-RapidAPI-Key": process.env.RAPID_API_KEY,
+      },
+      data: {
+        source_code: srcCode,
+        language_id: langID,
+        stdin: problem.testCases.input,
+        expected_output: problem.testCases.output,
+        cpu_time_limit: "2.0",
+        memory_limit: "262144",
+      },
+    };
+    const submissionRes = (await axios(axiosConfig)).data;
+    await User.findByIdAndUpdate(req.user._id, {
+      $push: {
+        problems: {
+          problemTitle,
+          problemID: id,
+          status: submissionRes.status,
+        },
+      },
+    });
+    res.status(200).json(submissionRes);
+  } catch (error) {
+    if (error.message === "Request failed with status code 429") {
+      throwError(res, 429, "Rapid-API's request limit exceeded!");
+    }
+    throwError(res, 500, "Internal Server Error");
+  }
 });
 
 module.exports = {
