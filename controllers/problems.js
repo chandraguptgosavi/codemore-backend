@@ -143,7 +143,7 @@ const runCode = asyncHandler(async (req, res) => {
 
 const submitProblem = asyncHandler(async (req, res) => {
   const { id } = req.params,
-    { problemTitle, srcCode, langID } = req.body;
+    { problemTitle, srcCode, language } = req.body;
   if (!srcCode || !langID || !problemTitle) {
     throwError(res, 400, "Fields are missing!");
   }
@@ -164,7 +164,7 @@ const submitProblem = asyncHandler(async (req, res) => {
       },
       data: {
         source_code: srcCode,
-        language_id: langID,
+        language_id: language.id,
         stdin: problem.testCases.input,
         expected_output: problem.testCases.output,
         cpu_time_limit: "2.0",
@@ -176,6 +176,7 @@ const submitProblem = asyncHandler(async (req, res) => {
       $push: {
         problems: {
           problemTitle,
+          languageName: language.name,
           problemID: id,
           status: submissionRes.status,
         },

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const userSubmissionSchema = mongoose.Schema({
   problemID: mongoose.SchemaTypes.ObjectId,
   problemTitle: String,
+  languageName: String,
   status: {
     id: Number,
     description: String,
