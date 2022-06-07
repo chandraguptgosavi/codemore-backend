@@ -1,6 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const cors = require('cors');
+const cors = require("cors");
 const path = require("path");
 const { connectToDB } = require("./db/dbConnection");
 const errorHandler = require("./middlewares/errorHandler");
@@ -26,13 +26,15 @@ app.use("/api/problems", problemsRoute);
 app.use("/api/user", userRoute);
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "client", "build")));
+  app.use(express.static("../client/build"));
 
   app.get("*", (req, res) =>
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
+    res.sendFile(path.resolve(__dirname, "..", "client", "build"))
   );
 } else {
-  app.get("/", (req, res) => res.send("You are currently accessing development environment"));
+  app.get("/", (req, res) =>
+    res.send("You are currently accessing development environment")
+  );
 }
 
 app.use(errorHandler);

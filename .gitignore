@@ -1,6 +1,7 @@
 node_modules
 client
 doc
+app
 .env
 
 # hidden files/folders
