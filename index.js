@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require('cors');
+const path = require("path");
 const { connectToDB } = require("./db/dbConnection");
 const errorHandler = require("./middlewares/errorHandler");
 const problemsRoute = require("./routes/problems");
@@ -13,15 +14,29 @@ connectToDB();
 const PORT = process.env.PORT,
   app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://codemore.herokuapp.com",
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/problems", problemsRoute);
-app.use("/user", userRoute);
+app.use("/api/problems", problemsRoute);
+app.use("/api/user", userRoute);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client", "build")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
+  );
+} else {
+  app.get("/", (req, res) => res.send("You are currently accessing development environment"));
+}
 
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Server is running at https://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
