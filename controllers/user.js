@@ -141,8 +141,7 @@ const getSubmissions = asyncHandler(async (req, res) => {
   const { username } = req.params;
 
   const user = await User.findOne({ username: username })
-    .select("submissions")
-    .exec();
+    .select("submissions").sort({ createdAt: 'desc'}).exec();
   res.status(200).json(user.submissions);
 });
 
