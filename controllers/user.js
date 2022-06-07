@@ -67,10 +67,9 @@ const signIn = asyncHandler(async (req, res) => {
 const getSubmissions = asyncHandler(async (req, res) => {
   const { username } = req.params;
 
-  const user = User.findOne({ username: username })
+  const user = await User.findOne({ username: username })
     .select("submissions")
     .exec();
-
   res.status(200).json(user.submissions);
 });
 

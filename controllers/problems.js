@@ -53,13 +53,13 @@ const createProblem = asyncHandler(async (req, res) => {
     output,
     sampleTestCases: {
       count: sampleTestCases.count,
-      input: sampleTestCases.input.replaceAll(",\r\n", "\r\n"),
-      output: sampleTestCases.output.replaceAll(",\r\n", "\r\n"),
+      input: sampleTestCases.input.replaceAll(/,\r?\n/g, `\n`),
+      output: sampleTestCases.output.replaceAll(/,\r?\n/g, `\n`),
     },
     testCases: {
       count: testCases.count,
-      input: testCases.input.replaceAll(",\r\n", "\r\n"),
-      output: testCases.output.replaceAll(",\r\n", "\r\n"),
+      input: testCases.input.replaceAll(/,\r?\n/g, `\n`),
+      output: testCases.output.replaceAll(/,\r?\n/g, `\n`),
     },
   });
   res.status(200).json(problem);
@@ -144,7 +144,7 @@ const runCode = asyncHandler(async (req, res) => {
 const submitProblem = asyncHandler(async (req, res) => {
   const { id } = req.params,
     { problemTitle, srcCode, language } = req.body;
-  if (!srcCode || !langID || !problemTitle) {
+  if (!srcCode || !language || !problemTitle) {
     throwError(res, 400, "Fields are missing!");
   }
 
@@ -165,7 +165,7 @@ const submitProblem = asyncHandler(async (req, res) => {
       data: {
         source_code: srcCode,
         language_id: language.id,
-        stdin: problem.testCases.input,
+        stdin: `${problem.testCases.count}\n${problem.testCases.input}`,
         expected_output: problem.testCases.output,
         cpu_time_limit: "2.0",
         memory_limit: "262144",
@@ -174,7 +174,7 @@ const submitProblem = asyncHandler(async (req, res) => {
     const submissionRes = (await axios(axiosConfig)).data;
     await User.findByIdAndUpdate(req.user._id, {
       $push: {
-        problems: {
+        submissions: {
           problemTitle,
           languageName: language.name,
           problemID: id,
