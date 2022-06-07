@@ -22,6 +22,12 @@
     "mongoose": "^6.3.4"
   },
   "devDependencies": {
+    "apidoc": "^0.51.1",
     "nodemon": "^2.0.16"
+  },
+  "apidoc": {
+    "name": "Codemore API documentation",
+    "version": "0.0.1",
+    "description": "Codemore API endpoints description."
   }
 }

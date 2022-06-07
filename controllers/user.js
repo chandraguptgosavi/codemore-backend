@@ -4,6 +4,29 @@ const { generateToken } = require("./../utils/jwt");
 const { throwError } = require("../utils/errorHandler");
 const User = require("../models/user");
 
+/**
+ * @api {post} /user/signup User signup
+ * @apiName signUp
+ * @apiGroup User
+ *
+ * @apiBody {String} username sername of the User.
+ * @apiBody {String} email  email of the User.
+ * @apiBody {String} password  password of the User.
+ *
+ * @apiSuccess {String} username Username of the User.
+ * @apiSuccess {String} email  Email of the User.
+ * @apiSuccess {String} token  JWT token for User authentication.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "username": "random_user",
+ *       "email": "random_user@examplemail.com",
+ *       "token" : "example_token-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIzNDU2Nzg5LCJuYW1lIjoiSm9zZXBoIn0.OpOSSw7e485LOP5PrzScxHb7SR6sAOMRckfFwi4rp7o"
+ *     }
+ *
+ * @apiError SingUpError Username/email/password is missing or User already exists with username/email.
+ */
 const signUp = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -40,6 +63,28 @@ const signUp = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * @api {post} /user/signin User signin
+ * @apiName signIn
+ * @apiGroup User
+ *
+ * @apiBody {String} email  email of the User.
+ * @apiBody {String} password  password of the User.
+ *
+ * @apiSuccess {String} username Username of the User.
+ * @apiSuccess {String} email  Email of the User.
+ * @apiSuccess {String} token  JWT token for User authentication.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "username": "random_user",
+ *       "email": "random_user@examplemail.com",
+ *       "token" : "example_token-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIzNDU2Nzg5LCJuYW1lIjoiSm9zZXBoIn0.OpOSSw7e485LOP5PrzScxHb7SR6sAOMRckfFwi4rp7o"
+ *     }
+ *
+ * @apiError SingInError Email/password is missing or User doesn't exists with email or Password is invalid.
+ */
 const signIn = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -64,6 +109,34 @@ const signIn = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * @api {get} /user/:username/submissions Get user submissions.
+ * @apiName getSubmissions
+ * @apiGroup User
+ *
+ * @apiParam {String} username username of the User.
+ *
+ * @apiSuccess {String} porblemID Problem's id for which submission was made.
+ * @apiSuccess {String} problemTitle  Title of the problem.
+ * @apiSuccess {String} languageName  Language used to submit the solution.
+ * @apiSuccess {Object} status  Submission status.
+ * @apiSuccess {Number} status.id Submission status id.
+ * @apiSuccess {String} status.description Submission status description.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "problemID": "example_id",
+ *       "problemTitle": "Find the array element",
+ *       "languageName" : "CPP",
+ *       "status": {
+ *          "id": 3,
+ *          "description": "Accepted"
+ *       }
+ *     }
+ *
+ * @apiError SingInError Email/password is missing or User doesn't exists with email or Password is invalid.
+ */
 const getSubmissions = asyncHandler(async (req, res) => {
   const { username } = req.params;
 
