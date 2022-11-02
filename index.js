@@ -16,7 +16,7 @@ const PORT = process.env.PORT,
 
 app.use(
   cors({
-    origin: "https://codemore.herokuapp.com",
+    origin: "https://codemore.deta.dev",
   })
 );
 app.use(express.json());
@@ -42,3 +42,5 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app;
