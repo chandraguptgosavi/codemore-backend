@@ -1,5 +1,5 @@
 <h1>
-  <a href="https://codemore.herokuapp.com/" rel="noopener" target="_blank">Codemore</a>
+  <a href="https://codemore.deta.dev/" rel="noopener" target="_blank">Codemore</a>
 </h1>
 
 <div>
@@ -8,7 +8,7 @@ Codemore is the open platform to help you enhance your problem solving skill, ex
 
 # Application Links
 
-Deployed URL -> [https://codemore.herokuapp.com/](https://codemore.herokuapp.com/)
+Deployed URL -> [https://codemore.deta.dev/](https://codemore.deta.dev/)
 <br>
 Frontend Code -> [https://github.com/chandraguptgosavi/codemore-frontend](https://github.com/chandraguptgosavi/codemore-frontend)
 <br>
